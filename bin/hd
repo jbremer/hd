@@ -1,0 +1,27 @@
+#!/usr/bin/env python
+# Copyright (C) 2015 Jurriaan Bremer.
+
+import os.path
+import sys
+
+import hd
+
+
+if __name__ == '__main__':
+    if len(sys.argv) == 1:
+        print 'Usage: %s <file> [options..]' % os.path.basename(sys.argv[0])
+        exit(1)
+
+    paths = []
+    args = {}
+
+    for arg in sys.argv[1:]:
+        if '=' not in arg:
+            paths.append(arg)
+            continue
+
+        key, value = arg.split('=', 1)
+        args[key.strip()] = value.strip()
+
+    for path in paths:
+        hd.hexdump(open(path, 'rb'), **args)
