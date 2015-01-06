@@ -63,8 +63,8 @@ def hexdump(data, **kwargs):
         fmt = endians[endian] + types[blocksize] * actual_count
         values = struct.unpack(fmt, buf)
 
-        # Check whether the entire row is empty.
-        if buf == '\x00' * len(buf):
+        # Check whether the entire row contains nulls.
+        if not buf.translate(None, '\x00'):
             if not instar:
                 print '*'
             instar = True
