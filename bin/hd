@@ -12,16 +12,21 @@ if __name__ == '__main__':
         print 'Usage: %s <file> [options..]' % os.path.basename(sys.argv[0])
         exit(1)
 
-    paths = []
+    path = None
     args = {}
 
     for arg in sys.argv[1:]:
         if '=' not in arg:
-            paths.append(arg)
+            if path:
+                print 'Please do not pass multiple files..'
+                exit(1)
+            path = arg
             continue
 
         key, value = arg.split('=', 1)
         args[key.strip()] = value.strip()
 
-    for path in paths:
+    try:
         hd.hexdump(open(path, 'rb'), **args)
+    except IOError:
+        pass
