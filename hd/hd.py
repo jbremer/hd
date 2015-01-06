@@ -89,6 +89,8 @@ def hexdump(data, **kwargs):
         for value in values:
             if not value:
                 h.append(' '*(2 * blocksize))
+            elif blocksize != 1:
+                h.append(('%%0%dx' % (2 * blocksize)) % value)
             elif chr(value) in ASCII_CHARSET or chr(value) in GREEN_CHARSET:
                 h.append(green('%%0%dx' % (2 * blocksize)) % value)
             elif value >= 0x80:
