@@ -45,7 +45,7 @@ def hexdump(data, **kwargs):
     types = {1: 'B', 2: 'H', 4: 'I'}
     endians = {'le': '<', 'be': '>', 'na': '='}
 
-    more, it, offset = True, _determine_iter(data), 0
+    more, it, offset, instar = True, _determine_iter(data), 0, False
     while more and (not length or offset < length):
         try:
             buf = it(data, offset, blocksize * count)
@@ -61,6 +61,16 @@ def hexdump(data, **kwargs):
         actual_count = len(buf) / blocksize
         fmt = endians[endian] + types[blocksize] * actual_count
         values = struct.unpack(fmt, buf)
+
+        # Check whether the entire row is empty.
+        if buf == '\x00' * len(buf):
+            if not instar:
+                print '*'
+            instar = True
+            offset += blocksize * count
+            continue
+
+        instar = False
 
         h = []
         for value in values:
