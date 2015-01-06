@@ -14,6 +14,7 @@ class PartialContent(Exception):
 
 
 def _iter_file(f, offset, count):
+    f.seek(offset)
     buf = f.read(count)
     if len(buf) != count:
         raise PartialContent(buf)
