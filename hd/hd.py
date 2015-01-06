@@ -90,7 +90,7 @@ def hexdump(data, **kwargs):
                     a += '.'
 
             padding = '   '*(count - actual_count)
-            print '%04x: %s%s  %s' % (offset, h, padding, a)
+            print '%04x: %s%s   %s' % (offset, h, padding, a)
         else:
             print '%04x: %s' % (offset, h)
 
