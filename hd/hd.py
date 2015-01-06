@@ -4,8 +4,20 @@ import struct
 
 
 # ASCII Charset.
-ASCII_CHARSET = \
-    'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+ASCII_CHARSET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+ASCII_CHARSET += '0123456789/\\ $@!^%*()_[]-`,.#~+{}|'
+GREEN_CHARSET = '\r\n\t'
+
+# Colors.
+COLORS = 'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'
+
+green = lambda s: color('green', s)
+red = lambda s: color('red', s)
+blue = lambda s: color('blue', s)
+
+
+def color(clr, s):
+    return '\x1b[%dm%s\x1b[0m' % (30 + COLORS.index(clr), s)
 
 
 class PartialContent(Exception):
@@ -76,17 +88,25 @@ def hexdump(data, **kwargs):
         h = []
         for value in values:
             if not value:
-                h.append(' ' * (2 * blocksize - 1) + '0')
+                h.append(' '*(2 * blocksize))
+            elif chr(value) in ASCII_CHARSET or chr(value) in GREEN_CHARSET:
+                h.append(green('%%0%dx' % (2 * blocksize)) % value)
+            elif value >= 0x80:
+                h.append(red('%%0%dx' % (2 * blocksize)) % value)
             else:
-                h.append(('%%0%dx' % (2 * blocksize)) % value)
+                h.append(blue('%%0%dx' % (2 * blocksize)) % value)
 
         h = ' '.join('%s' % x for x in h)
 
         if blocksize == 1:
             a = ''
             for ch in values:
-                if chr(ch) in ASCII_CHARSET:
-                    a += chr(ch)
+                if not ch:
+                    a += ' '
+                elif chr(ch) in ASCII_CHARSET:
+                    a += green(chr(ch))
+                elif chr(ch) in GREEN_CHARSET:
+                    a += green('.')
                 else:
                     a += '.'
 
