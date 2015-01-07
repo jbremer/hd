@@ -29,7 +29,7 @@ if __name__ == '__main__':
         key, value = arg.split('=', 1)
         args[key.strip()] = value.strip()
 
-    if 'count' not in args:
+    if 'count' not in args and 'c' not in args:
         # Bytes required per combination of blocksize character.
         bytes_required = {1: 4, 2: 5, 4: 9}
 
