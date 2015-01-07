@@ -15,6 +15,9 @@ if __name__ == '__main__':
     path = None
     args = {}
 
+    # Get the terminal size in order to calculate the size that fits best.
+    cols, _ = hd.get_terminal_size()
+
     for arg in sys.argv[1:]:
         if '=' not in arg:
             if path:
@@ -25,6 +28,19 @@ if __name__ == '__main__':
 
         key, value = arg.split('=', 1)
         args[key.strip()] = value.strip()
+
+    if 'count' not in args:
+        # Bytes required per written character to the command line.
+        bytes_required = {1: 4, 2: 5/2., 4: 9/4.}
+
+        # Fetch the blocksize, if given.
+        blocksize = args.get('blocksize', args.get('bs', 1))
+
+        # Each line has up to 12 columns used as overhead, so subtract those.
+        args['count'] = (cols - 12) / bytes_required[blocksize]
+
+        # 8-byte alignment.
+        args['count'] &= ~7
 
     try:
         hd.hexdump(open(path, 'rb'), **args)
