@@ -30,17 +30,15 @@ if __name__ == '__main__':
         args[key.strip()] = value.strip()
 
     if 'count' not in args:
-        # Bytes required per written character to the command line.
-        bytes_required = {1: 4, 2: 5/2., 4: 9/4.}
+        # Bytes required per combination of blocksize character.
+        bytes_required = {1: 4, 2: 5, 4: 9}
 
         # Fetch the blocksize, if given.
-        blocksize = args.get('blocksize', args.get('bs', 1))
+        blocksize = int(args.get('blocksize', args.get('bs', 1)))
 
-        # Each line has up to 12 columns used as overhead, so subtract those.
-        args['count'] = (cols - 12) / bytes_required[blocksize]
-
-        # 8-byte alignment.
-        args['count'] &= ~7
+        # Each line has up to 12 columns used as overhead, so subtract those,
+        # and adjust the size to an 8-byte alignment.
+        args['count'] = ((cols - 12) / bytes_required[blocksize]) & ~7
 
     try:
         hd.hexdump(open(path, 'rb'), **args)
