@@ -54,6 +54,7 @@ def hexdump(data, **kwargs):
     blocksize = int(kwargs.pop('blocksize', kwargs.pop('bs', 1)))
     count = int(kwargs.pop('count', kwargs.pop('c', 16)))
     endian = kwargs.pop('endian', kwargs.pop('e', 'le'))
+    mode = kwargs.pop('mode', kwargs.pop('m', 'fancy'))
 
     types = {1: 'B', 2: 'H', 4: 'I'}
     endians = {'le': '<', 'be': '>', 'na': '='}
@@ -87,9 +88,11 @@ def hexdump(data, **kwargs):
 
         h = []
         for value in values:
-            if not value:
+            if not value and mode != 'normal':
                 h.append(' '*(2 * blocksize))
             elif blocksize != 1:
+                h.append(('%%0%dx' % (2 * blocksize)) % value)
+            elif mode == 'normal':
                 h.append(('%%0%dx' % (2 * blocksize)) % value)
             elif chr(value) in ASCII_CHARSET or chr(value) in GREEN_CHARSET:
                 h.append(green('%%0%dx' % (2 * blocksize)) % value)
@@ -104,10 +107,10 @@ def hexdump(data, **kwargs):
             a = ''
             for ch in values:
                 if not ch:
-                    a += ' '
+                    a += '.' if mode == 'normal' else ' '
                 elif chr(ch) in ASCII_CHARSET:
-                    a += green(chr(ch))
-                elif chr(ch) in GREEN_CHARSET:
+                    a += green(chr(ch)) if mode != 'normal' else chr(ch)
+                elif chr(ch) in GREEN_CHARSET and mode != 'normal':
                     a += green('.')
                 else:
                     a += '.'
