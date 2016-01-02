@@ -1,6 +1,5 @@
 # Source: https://gist.github.com/jtriley/1108174
 import os
-import shlex
 import struct
 import platform
 import subprocess
@@ -23,7 +22,7 @@ def get_terminal_size():
         return size or (80, 25)
 
     if current_os in ('Linux', 'Darwin') or current_os.startswith('CYGWIN'):
-        return _get_terminal_size_linux() or (80, 25)
+        return _get_terminal_size_linux()
 
     # Default value.
     return 80, 25
@@ -38,8 +37,7 @@ def _get_terminal_size_windows():
         csbi = create_string_buffer(22)
         res = windll.kernel32.GetConsoleScreenBufferInfo(h, csbi)
         if res:
-            _, _, _, _, _, left, top, right, bottom, _, _ = \
-                struct.unpack("hhhhHhhhhhh", csbi.raw)
+            left, top, right, bottom = struct.unpack("4h", csbi.raw[10:18])
 
             sizex = right - left + 1
             sizey = bottom - top + 1
@@ -51,8 +49,8 @@ def _get_terminal_size_windows():
 def _get_terminal_size_tput():
     # Source: http://stackoverflow.com/questions/263890/how-do-i-find-the-width-height-of-a-terminal-window
     try:
-        cols = int(subprocess.check_call(shlex.split('tput cols')))
-        rows = int(subprocess.check_call(shlex.split('tput lines')))
+        cols = int(subprocess.check_output(['tput', 'cols']))
+        rows = int(subprocess.check_output(['tput', 'lines']))
         return cols, rows
     except:
         pass
